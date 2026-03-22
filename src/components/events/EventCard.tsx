@@ -7,9 +7,11 @@ interface EventCardProps {
   event: Event;
   onBook?: (event: Event) => void;
   onViewDetails?: (event: Event) => void;
+  /** Defaults to "Book Now" */
+  bookButtonLabel?: string;
 }
 
-export const EventCard = ({ event, onBook, onViewDetails }: EventCardProps) => {
+export const EventCard = ({ event, onBook, onViewDetails, bookButtonLabel = 'Book Now' }: EventCardProps) => {
   const formatDate = (dateStr: unknown) => {
     if (!dateStr) return '—';
     const d = new Date(String(dateStr));
@@ -68,7 +70,7 @@ export const EventCard = ({ event, onBook, onViewDetails }: EventCardProps) => {
           )}
           {onBook && (
             <Button size="sm" onClick={() => onBook(event)} className="flex-1">
-              Book Now
+              {bookButtonLabel}
             </Button>
           )}
         </div>

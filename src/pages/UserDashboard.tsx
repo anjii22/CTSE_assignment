@@ -12,6 +12,7 @@ import { Navbar } from '../components/layout/Navbar';
 import { Search, Calendar } from 'lucide-react';
 import { useToast } from '../components/ui/Toast';
 import { formatMoney, getUserId } from '../utils/format';
+import { navigate } from '../components/navigation/history';
 
 export const UserDashboard = () => {
   const { user } = useAuth();
@@ -57,6 +58,11 @@ export const UserDashboard = () => {
   };
 
   const handleBookEvent = (event: Event) => {
+    if (!user) {
+      toast.info('Please sign in to book events.');
+      navigate('/login');
+      return;
+    }
     setSelectedEvent(event);
     setQuantity(1);
     setError('');
@@ -104,9 +110,13 @@ export const UserDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.firstName}!
+            {user ? `Welcome back, ${user.firstName}!` : 'Events'}
           </h1>
-          <p className="text-gray-600">Discover and book amazing events</p>
+          <p className="text-gray-600">
+            {user
+              ? 'Discover and book amazing events'
+              : 'Browse upcoming events. Sign in to book tickets.'}
+          </p>
         </div>
         <div className="mb-6 flex gap-3">
           <Input
@@ -127,6 +137,7 @@ export const UserDashboard = () => {
               key={event._id}
               event={event}
               onBook={handleBookEvent}
+              bookButtonLabel={user ? 'Book Now' : 'Sign in to book'}
             />
           ))}
         </div>

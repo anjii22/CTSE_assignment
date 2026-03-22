@@ -51,7 +51,7 @@ export const Home = () => {
             <Link to={user ? '/dashboard' : '/register'}>
               <Button size="lg">Get Started</Button>
             </Link>
-            <Link to="/login">
+            <Link to="/dashboard">
               <Button size="lg" variant="secondary">
                 Browse Events
               </Button>

@@ -33,7 +33,7 @@ function AppRoutes() {
         { path: '/register', component: <Register /> },
         {
           path: '/dashboard',
-          component: user ? <UserDashboard /> : <Login />,
+          component: <UserDashboard />,
         },
         {
           path: '/admin',
