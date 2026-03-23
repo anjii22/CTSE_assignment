@@ -18,7 +18,7 @@ export const ProtectedRoute = ({ children, adminOnly }: Props) => {
   }
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (adminOnly && !isAdmin) return <Navigate to="/dashboard" replace />;
+  if (adminOnly && !isAdmin) return <Navigate to="/" replace />;
 
   return <>{children}</>;
 };

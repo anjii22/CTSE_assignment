@@ -28,7 +28,7 @@ const RegisterPage = () => {
       } catch {
         role = undefined;
       }
-      navigate(role === "admin" ? "/admin" : "/dashboard");
+      navigate(role === "admin" ? "/admin" : "/");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Registration failed");
     } finally {
