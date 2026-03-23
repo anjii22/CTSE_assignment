@@ -1,79 +1,83 @@
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { Router } from './components/navigation/Router';
-import { Home } from './pages/Home';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
-import { UserDashboard } from './pages/UserDashboard';
-import { AdminDashboard } from './pages/AdminDashboard';
-import { Profile } from './pages/Profile';
-import { Bookings } from './pages/Bookings';
-import { Payments } from './pages/Payments';
-import { ErrorBoundary } from './components/error/ErrorBoundary';
-import { ToastProvider } from './components/ui/Toast';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { PublicLayout } from "@/layouts/PublicLayout";
+import { AdminLayout } from "@/layouts/AdminLayout";
 
-function AppRoutes() {
-  const { user, loading } = useAuth();
+import HomePage from "./pages/HomePage";
+import EventsPage from "./pages/EventsPage";
+import EventDetailPage from "./pages/EventDetailPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import DashboardPage from "./pages/DashboardPage";
+import BookingsPage from "./pages/BookingsPage";
+import ProfilePage from "./pages/ProfilePage";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminEventsPage from "./pages/admin/AdminEventsPage";
+import AdminEventFormPage from "./pages/admin/AdminEventFormPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminBookingsPage from "./pages/admin/AdminBookingsPage";
+import NotFound from "./pages/NotFound";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, staleTime: 30000 },
+  },
+});
+
+function AppShellLayout() {
+  const { isAuthenticated, isAdmin, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
 
-  return (
-    <Router
-      routes={[
-        { path: '/', component: <Home /> },
-        { path: '/login', component: <Login /> },
-        { path: '/register', component: <Register /> },
-        {
-          path: '/dashboard',
-          component: <UserDashboard />,
-        },
-        {
-          path: '/admin',
-          component: user?.role === 'admin' ? <AdminDashboard /> : <Login />,
-        },
-        {
-          path: '/profile',
-          component: user ? <Profile /> : <Login />,
-        },
-        {
-          path: '/bookings',
-          component: user ? <Bookings /> : <Login />,
-        },
-        {
-          path: '/payments',
-          component: user ? <Payments /> : <Login />,
-        },
-      ]}
-      notFound={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">404</h1>
-            <p className="text-gray-600">Page not found</p>
-          </div>
-        </div>
-      }
-    />
-  );
+  return isAuthenticated && isAdmin ? <AdminLayout /> : <PublicLayout />;
 }
 
-function App() {
-  return (
-    <ErrorBoundary>
-      <ToastProvider>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </ToastProvider>
-    </ErrorBoundary>
-  );
-}
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AppShellLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/events" element={<EventsPage />} />
+              <Route path="/events/:id" element={<EventDetailPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+
+              {/* Authenticated user routes */}
+              <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+              <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+              
+              {/* Admin routes */}
+              <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboardPage /></ProtectedRoute>} />
+              <Route path="/admin/events" element={<ProtectedRoute adminOnly><AdminEventsPage /></ProtectedRoute>} />
+              <Route path="/admin/events/create" element={<ProtectedRoute adminOnly><AdminEventFormPage /></ProtectedRoute>} />
+              <Route path="/admin/events/edit/:id" element={<ProtectedRoute adminOnly><AdminEventFormPage /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute adminOnly><AdminUsersPage /></ProtectedRoute>} />
+              <Route path="/admin/bookings" element={<ProtectedRoute adminOnly><AdminBookingsPage /></ProtectedRoute>} />
+            </Route>
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
+  </QueryClientProvider>
+);
 
 export default App;
