@@ -41,11 +41,11 @@ function toHttpsIfHttp(url: string) {
 }
 
 export default async function handler(req: any, res: any) {
-  const base = process.env.VITE_API_BASE_URL;
+  const base = process.env.VITE_API_BASE_URL ?? process.env.API_BASE_URL;
   if (!base) {
     res.statusCode = 500;
     res.setHeader("content-type", "application/json");
-    res.end(JSON.stringify({ error: "Missing env var VITE_API_BASE_URL" }));
+    res.end(JSON.stringify({ error: "Missing env var VITE_API_BASE_URL (or API_BASE_URL)" }));
     return;
   }
 
@@ -55,6 +55,41 @@ export default async function handler(req: any, res: any) {
     : typeof req.query?.path === "string"
       ? [req.query.path]
       : [];
+
+  // Health check from the browser:
+  // GET https://<your-app>/proxy/__health
+  if ((req.method || "GET").toUpperCase() === "GET" && segments[0] === "__health") {
+    const url = joinUrl(base, "/");
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 7000);
+    try {
+      const r = await fetch(toHttpsIfHttp(url), { method: "GET", redirect: "manual", signal: controller.signal });
+      res.statusCode = 200;
+      res.setHeader("content-type", "application/json");
+      res.end(
+        JSON.stringify({
+          ok: true,
+          base,
+          tested: toHttpsIfHttp(url),
+          upstreamStatus: r.status,
+        }),
+      );
+    } catch (e: any) {
+      res.statusCode = 200;
+      res.setHeader("content-type", "application/json");
+      res.end(
+        JSON.stringify({
+          ok: false,
+          base,
+          tested: toHttpsIfHttp(url),
+          error: e?.message ?? String(e),
+        }),
+      );
+    } finally {
+      clearTimeout(t);
+    }
+    return;
+  }
 
   const qsIndex = (req.url || "").indexOf("?");
   const queryString = qsIndex >= 0 ? (req.url || "").slice(qsIndex) : "";
