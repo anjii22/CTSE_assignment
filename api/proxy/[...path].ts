@@ -34,6 +34,10 @@ function joinUrl(base: string, pathWithQuery: string) {
   return `${b}${p}`;
 }
 
+function toHttpsIfHttp(url: string) {
+  return url.startsWith("http://") ? `https://${url.slice("http://".length)}` : url;
+}
+
 export default async function handler(req: any, res: any) {
   const base = process.env.VITE_API_BASE_URL;
   if (!base) {
@@ -66,13 +70,44 @@ export default async function handler(req: any, res: any) {
     else if (Array.isArray(v)) headers.set(key, v.join(","));
   }
 
-  const upstreamResp = await fetch(upstreamUrl, {
-    method: req.method,
-    headers,
-    body,
-    redirect: "manual",
-  });
+  res.setHeader("cache-control", "no-store");
 
+  let upstreamResp: Response | undefined;
+  let triedUrl = upstreamUrl;
+  try {
+    upstreamResp = await fetch(triedUrl, {
+      method: req.method,
+      headers,
+      body,
+      redirect: "manual",
+    });
+  } catch (e: any) {
+    // Some platforms/environments may block outbound HTTP; retry HTTPS when possible.
+    const httpsUrl = toHttpsIfHttp(upstreamUrl);
+    if (httpsUrl !== upstreamUrl) {
+      triedUrl = httpsUrl;
+      upstreamResp = await fetch(triedUrl, {
+        method: req.method,
+        headers,
+        body,
+        redirect: "manual",
+      });
+    } else {
+      res.statusCode = 502;
+      res.setHeader("content-type", "application/json");
+      res.setHeader("x-proxy-upstream", upstreamUrl);
+      res.end(
+        JSON.stringify({
+          error: "Upstream fetch failed",
+          upstream: upstreamUrl,
+          message: e?.message ?? String(e),
+        }),
+      );
+      return;
+    }
+  }
+
+  res.setHeader("x-proxy-upstream", triedUrl);
   res.statusCode = upstreamResp.status;
   upstreamResp.headers.forEach((value, key) => {
     if (HOP_BY_HOP_HEADERS.has(key.toLowerCase())) return;
