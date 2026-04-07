@@ -14,7 +14,6 @@ function getRawBody(req: any): Promise<Buffer | undefined> {
   const method = (req.method || "GET").toUpperCase();
   if (method === "GET" || method === "HEAD") return Promise.resolve(undefined);
 
-  // If the platform already parsed body, serialize it back.
   if (req.body != null) {
     if (Buffer.isBuffer(req.body)) return Promise.resolve(req.body);
     if (typeof req.body === "string") return Promise.resolve(Buffer.from(req.body));
@@ -44,6 +43,7 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
+  // /proxy/<path...> -> <VITE_API_BASE_URL>/<path...>
   const segments = Array.isArray(req.query?.path)
     ? req.query.path
     : typeof req.query?.path === "string"
@@ -52,16 +52,16 @@ export default async function handler(req: any, res: any) {
 
   const qsIndex = (req.url || "").indexOf("?");
   const queryString = qsIndex >= 0 ? (req.url || "").slice(qsIndex) : "";
-  const upstreamPath = `/${segments.map(encodeURIComponent).join("/")}${queryString}`;
 
+  const upstreamPath = `/${segments.map((s: string) => s).join("/")}${queryString}`;
   const upstreamUrl = joinUrl(base, upstreamPath);
+
   const body = await getRawBody(req);
 
   const headers = new Headers();
   for (const [k, v] of Object.entries(req.headers || {})) {
-    if (!k) continue;
-    const key = k.toLowerCase();
-    if (HOP_BY_HOP_HEADERS.has(key)) continue;
+    const key = (k || "").toLowerCase();
+    if (!key || HOP_BY_HOP_HEADERS.has(key)) continue;
     if (typeof v === "string") headers.set(key, v);
     else if (Array.isArray(v)) headers.set(key, v.join(","));
   }
