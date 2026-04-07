@@ -13,6 +13,7 @@ export default async function handler(_req: any, res: any) {
   if (!base) {
     res.statusCode = 500;
     res.setHeader("content-type", "application/json");
+    res.setHeader("cache-control", "no-store");
     res.end(JSON.stringify({ ok: false, error: "Missing env var VITE_API_BASE_URL (or API_BASE_URL)" }));
     return;
   }
