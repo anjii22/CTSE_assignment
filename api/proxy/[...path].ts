@@ -10,12 +10,12 @@ const HOP_BY_HOP_HEADERS = new Set([
   "host",
 ]);
 
-function getRawBody(req: any): Promise<Buffer | undefined> {
+function getRawBody(req: any): Promise<Uint8Array | string | undefined> {
   const method = (req.method || "GET").toUpperCase();
   if (method === "GET" || method === "HEAD") return Promise.resolve(undefined);
 
   if (req.body != null) {
-    if (Buffer.isBuffer(req.body)) return Promise.resolve(req.body);
+    if (Buffer.isBuffer(req.body)) return Promise.resolve(new Uint8Array(req.body));
     if (typeof req.body === "string") return Promise.resolve(Buffer.from(req.body));
     return Promise.resolve(Buffer.from(JSON.stringify(req.body)));
   }
@@ -23,7 +23,9 @@ function getRawBody(req: any): Promise<Buffer | undefined> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     req.on("data", (c: Buffer) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
-    req.on("end", () => resolve(chunks.length ? Buffer.concat(chunks) : undefined));
+    req.on("end", () =>
+      resolve(chunks.length ? new Uint8Array(Buffer.concat(chunks)) : undefined),
+    );
     req.on("error", reject);
   });
 }
@@ -78,7 +80,7 @@ export default async function handler(req: any, res: any) {
     upstreamResp = await fetch(triedUrl, {
       method: req.method,
       headers,
-      body,
+      body: body as any,
       redirect: "manual",
     });
   } catch (e: any) {
@@ -89,7 +91,7 @@ export default async function handler(req: any, res: any) {
       upstreamResp = await fetch(triedUrl, {
         method: req.method,
         headers,
-        body,
+        body: body as any,
         redirect: "manual",
       });
     } else {
