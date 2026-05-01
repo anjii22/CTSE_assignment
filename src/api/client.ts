@@ -2,13 +2,7 @@ import axios from "axios";
 
 const RAW_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const BASE_URL =
-  typeof window !== "undefined" &&
-  window.location.protocol === "https:" &&
-  typeof RAW_BASE_URL === "string" &&
-  RAW_BASE_URL.startsWith("http://")
-    ? "/proxy"
-    : RAW_BASE_URL;
+const BASE_URL = import.meta.env.PROD ? "/api" : RAW_BASE_URL;
 
 export const userApi = axios.create({ baseURL: `${BASE_URL}/users` });
 export const eventApi = axios.create({ baseURL: `${BASE_URL}/events` });
