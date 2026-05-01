@@ -8,6 +8,7 @@ const HOP_BY_HOP_HEADERS = new Set([
   "transfer-encoding",
   "upgrade",
   "host",
+  "content-length",
 ]);
 
 function getRawBody(req: any): Promise<Uint8Array | string | undefined> {
@@ -49,7 +50,7 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  // /proxy/<path...> -> <VITE_API_BASE_URL>/<path...>
+  // /api/<path...> -> <VITE_API_BASE_URL>/<path...>
   const segments = Array.isArray(req.query?.path)
     ? req.query.path
     : typeof req.query?.path === "string"
@@ -57,7 +58,7 @@ export default async function handler(req: any, res: any) {
       : [];
 
   // Health check from the browser:
-  // GET https://<your-app>/proxy/__health
+  // GET https://<your-app>/api/__health
   if ((req.method || "GET").toUpperCase() === "GET" && segments[0] === "__health") {
     const url = joinUrl(base, "/");
     const controller = new AbortController();
@@ -154,4 +155,3 @@ export default async function handler(req: any, res: any) {
   const buf = Buffer.from(await upstreamResp.arrayBuffer());
   res.end(buf);
 }
-

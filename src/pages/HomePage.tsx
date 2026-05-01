@@ -51,7 +51,7 @@ const HomePage = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["events", category],
     queryFn: () => {
       const params: Record<string, string> = {};
@@ -61,6 +61,7 @@ const HomePage = () => {
   });
 
   const events = data?.data?.events || [];
+  const apiError = error as any;
   const now = new Date();
 
   // Only show upcoming events (hide passed/ended) in the public listing.
@@ -157,6 +158,14 @@ const HomePage = () => {
             {Array.from({ length: 8 }).map((_, i) => (
               <EventCardSkeleton key={i} />
             ))}
+          </div>
+        ) : apiError ? (
+          <div className="text-center py-20">
+            <CalendarDays className="h-16 w-16 mx-auto text-red-500/70 mb-4" />
+            <h3 className="text-lg font-semibold">Unable to load events</h3>
+            <p className="text-muted-foreground text-sm">
+              {(apiError.response?.data?.message || apiError.message || "Server request failed").toString()}
+            </p>
           </div>
         ) : upcomingEvents.length === 0 ? (
           <div className="text-center py-20">

@@ -1,13 +1,11 @@
 import axios from "axios";
 
-const RAW_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = "/api";
 
-const BASE_URL = import.meta.env.PROD ? "/api" : RAW_BASE_URL;
-
-export const userApi = axios.create({ baseURL: `${BASE_URL}/users` });
-export const eventApi = axios.create({ baseURL: `${BASE_URL}/events` });
-export const bookingApi = axios.create({ baseURL: `${BASE_URL}/bookings` });
-export const paymentApi = axios.create({ baseURL: `${BASE_URL}/payments` });
+export const userApi = axios.create({ baseURL: `${API_BASE_URL}/users` });
+export const eventApi = axios.create({ baseURL: `${API_BASE_URL}/events` });
+export const bookingApi = axios.create({ baseURL: `${API_BASE_URL}/bookings` });
+export const paymentApi = axios.create({ baseURL: `${API_BASE_URL}/payments` });
 
 const addAuthInterceptor = (instance: ReturnType<typeof axios.create>) => {
   instance.interceptors.request.use((config) => {

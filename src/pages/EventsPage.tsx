@@ -53,12 +53,13 @@ const EventsPage = () => {
   useEffect(() => setSearch(initialQuery), [initialQuery]);
   const [category, setCategory] = useState<string>("all");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["events", "all"],
     queryFn: () => eventService.getAll(),
   });
 
   const events = data?.data?.events || [];
+  const apiError = error as any;
 
   const now = new Date();
 
@@ -143,6 +144,14 @@ const EventsPage = () => {
           {Array.from({ length: 8 }).map((_, i) => (
             <EventCardSkeleton key={i} />
           ))}
+        </div>
+      ) : apiError ? (
+        <div className="text-center py-20">
+          <CalendarDays className="h-16 w-16 mx-auto text-red-500/70 mb-4" />
+          <h3 className="text-lg font-semibold">Failed to load events</h3>
+          <p className="text-muted-foreground text-sm">
+            {(apiError.response?.data?.message || apiError.message || "Server request failed").toString()}
+          </p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20">
