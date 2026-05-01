@@ -7,55 +7,55 @@ import type {
 // User Service
 export const userService = {
   register: (data: RegisterRequest) =>
-    userApi.post<AuthResponse>("/api/users/register", data),
+    userApi.post<AuthResponse>("/register", data),
   login: (data: LoginRequest) =>
-    userApi.post<AuthResponse>("/api/users/login", data),
+    userApi.post<AuthResponse>("/login", data),
   getProfile: (userId: string) =>
-    userApi.get<User>(`/api/users/${userId}`),
+    userApi.get<User>(`/${userId}`),
   updateProfile: (userId: string, data: Partial<User>) =>
-    userApi.put<User>(`/api/users/${userId}`, data),
+    userApi.put<User>(`/${userId}`, data),
   getPreferences: (userId: string) =>
-    userApi.get(`/api/users/${userId}/preferences`),
+    userApi.get(`/${userId}/preferences`),
 };
 
 // Event Service
 export const eventService = {
   getAll: (params?: Record<string, string>) =>
-    eventApi.get<EventsResponse>("/api/events", { params }),
+    eventApi.get<EventsResponse>("/", { params }),
   getById: (eventId: string) =>
-    eventApi.get<Event>(`/api/events/${eventId}`),
+    eventApi.get<Event>(`/${eventId}`),
   create: (data: Partial<Event>) =>
-    eventApi.post<Event>("/api/events", data),
+    eventApi.post<Event>("/", data),
   update: (eventId: string, data: Partial<Event>) =>
-    eventApi.put<Event>(`/api/events/${eventId}`, data),
+    eventApi.put<Event>(`/${eventId}`, data),
   checkAvailability: (eventId: string) =>
-    eventApi.get(`/api/events/${eventId}/availability`),
+    eventApi.get(`/${eventId}/availability`),
   search: (params: Record<string, string>) =>
-    eventApi.get<EventsResponse>("/api/events/search", { params }),
+    eventApi.get<EventsResponse>("/search", { params }),
 };
 
 // Booking Service
 export const bookingService = {
   create: (data: BookingRequest) =>
-    bookingApi.post<Booking>("/api/bookings", data),
+    bookingApi.post<Booking>("/", data),
   getById: (bookingId: string) =>
-    bookingApi.get<Booking>(`/api/bookings/${bookingId}`),
+    bookingApi.get<Booking>(`/${bookingId}`),
   getUserBookings: (userId: string) =>
-    bookingApi.get<BookingsResponse>(`/api/bookings/user/${userId}`),
+    bookingApi.get<BookingsResponse>(`/user/${userId}`),
   cancel: (bookingId: string) =>
-    bookingApi.put<Booking>(`/api/bookings/${bookingId}/cancel`),
+    bookingApi.put<Booking>(`/${bookingId}/cancel`),
   confirm: (bookingId: string) =>
-    bookingApi.put<Booking>(`/api/bookings/${bookingId}/confirm`),
+    bookingApi.put<Booking>(`/${bookingId}/confirm`),
 };
 
 // Payment Service
 export const paymentService = {
   process: (data: { bookingId: string; userId: string; amount: number; paymentMethod: string }) =>
-    paymentApi.post<Payment>("/api/payments/process", data),
+    paymentApi.post<Payment>("/process", data),
   getById: (paymentId: string) =>
-    paymentApi.get<Payment>(`/api/payments/${paymentId}`),
+    paymentApi.get<Payment>(`/${paymentId}`),
   getByBooking: (bookingId: string) =>
-    paymentApi.get<Payment>(`/api/payments/booking/${bookingId}`),
+    paymentApi.get<Payment>(`/booking/${bookingId}`),
   refund: (paymentId: string) =>
     paymentApi.put<Payment>(`/api/payments/${paymentId}/refund`),
 };
