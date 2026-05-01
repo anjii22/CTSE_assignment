@@ -1,6 +1,7 @@
 {
   "routes": [
     { "src": "^/proxy/(.*)", "dest": "/api/proxy/$1" },
+    { "src": "^/api/(.*)", "dest": "/api/$1" },
     { "handle": "filesystem" },
     { "src": "^(.*)$", "dest": "/index.html" }
   ]
