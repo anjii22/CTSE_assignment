@@ -36,13 +36,16 @@ export interface User {
 }
 
 export interface Booking {
-  _id: string;
+  _id?: string;
+  /** Some APIs return `id` instead of Mongo-style `_id` */
+  id?: string;
   userId: string;
   eventId: string;
   quantity: number;
   totalAmount: number;
   status: "pending" | "confirmed" | "cancelled";
-  paymentId: string;
+  /** Set when a payment has been recorded for this booking */
+  paymentId?: string | null;
   cancellationDate: string | null;
   bookingDate: string;
   createdAt: string;
@@ -80,6 +83,13 @@ export interface BookingRequest {
   userId: string;
   eventId: string;
   quantity: number;
+}
+
+export interface PaymentProcessRequest {
+  bookingId: string;
+  userId: string;
+  amount: number;
+  paymentMethod: string;
 }
 
 export interface AuthResponse {

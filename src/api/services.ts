@@ -2,6 +2,7 @@ import { userApi, eventApi, bookingApi, paymentApi } from "./client";
 import type {
   AuthResponse, Event, EventsResponse, User, Booking,
   BookingsResponse, Payment, LoginRequest, RegisterRequest, BookingRequest,
+  PaymentProcessRequest,
 } from "@/types";
 
 // User Service
@@ -50,7 +51,7 @@ export const bookingService = {
 
 // Payment Service
 export const paymentService = {
-  process: (data: { bookingId: string; userId: string; amount: number; paymentMethod: string }) =>
+  process: (data: PaymentProcessRequest) =>
     paymentApi.post<Payment>("/api/payments/process", data),
   getById: (paymentId: string) =>
     paymentApi.get<Payment>(`/api/payments/${paymentId}`),

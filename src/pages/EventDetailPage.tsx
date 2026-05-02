@@ -34,7 +34,14 @@ const EventDetailPage = () => {
         quantity,
       }),
     onSuccess: (res) => {
-      toast.success("Booking confirmed! Payment processed automatically.");
+      const booking = res.data;
+      if (booking.status === "pending") {
+        toast.success("Booking created", {
+          description: "Complete payment from My Bookings to confirm your tickets.",
+        });
+      } else {
+        toast.success("Booking confirmed!");
+      }
       queryClient.invalidateQueries({ queryKey: ["events"] });
       navigate("/bookings");
     },
@@ -165,7 +172,7 @@ const EventDetailPage = () => {
                     </Button>
                   )}
                   <p className="text-xs text-muted-foreground text-center">
-                    Payment is processed automatically upon booking
+                    If your booking stays pending, pay from My Bookings to confirm your tickets.
                   </p>
                 </>
               )}
