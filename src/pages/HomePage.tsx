@@ -89,7 +89,7 @@ const HomePage = () => {
             transition={{ duration: 0.6 }}
             className="max-w-3xl mx-auto text-center"
           >
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-4 py-1.5 text-sm font-medium text-primary-foreground mb-6">
+            <div className="inline-flex items-center gap-2 rounded-full bg-secondary/20 px-4 py-1.5 text-sm font-medium text-primary-foreground mb-6">
               <Sparkles className="h-4 w-4" />
               Discover Amazing Events
             </div>
