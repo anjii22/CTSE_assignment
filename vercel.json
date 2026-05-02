@@ -1,7 +1,25 @@
 {
-  "routes": [
-    { "src": "^/api/(.*)", "dest": "/api/proxy/$1" },
-    { "handle": "filesystem" },
-    { "src": "^(.*)$", "dest": "/index.html" }
+  "rewrites": [
+    {
+      "source": "/api/users/:path*",
+      "destination": "http://microservices-alb-1589977708.us-east-1.elb.amazonaws.com/users/:path*"
+    },
+    {
+      "source": "/api/events/:path*",
+      "destination": "http://microservices-alb-1589977708.us-east-1.elb.amazonaws.com/events/:path*"
+    },
+    {
+      "source": "/api/bookings/:path*",
+      "destination": "http://microservices-alb-1589977708.us-east-1.elb.amazonaws.com/bookings/:path*"
+    },
+    {
+      "source": "/api/payments/:path*",
+      "destination": "http://microservices-alb-1589977708.us-east-1.elb.amazonaws.com/payments/:path*"
+    },
+    {
+      "source": "/api/__health",
+      "destination": "http://microservices-alb-1589977708.us-east-1.elb.amazonaws.com/"
+    },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
